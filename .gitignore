@@ -1,0 +1,8 @@
+*.json
+*.ini
+*.ipynb
+soc_model.sav
+X_cols
+*.csv
+*.pyc
+*.zip

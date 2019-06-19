@@ -1,0 +1,543 @@
+number_of_victims
+number_of_traffickers
+other_possible_victims
+recruited_agency
+recruited_broker
+recruited_no
+how_recruited_promised_job
+how_recruited_married
+how_recruited_promised_marriage
+how_recruited_at_work
+how_recruited_at_school
+how_recruited_job_ad
+how_recruited_broker_online
+how_recruited_broker_approached
+how_recruited_broker_through_friends
+how_recruited_broker_through_family
+how_recruited_broker_called_pv
+known_broker_years
+known_broker_months
+married_broker_years
+married_broker_months
+travel_expenses_paid_themselves
+travel_expenses_paid_by_broker
+travel_expenses_paid_to_broker
+travel_expenses_paid_by_broker_repaid
+purpose_for_leaving_education
+purpose_for_leaving_travel_tour
+purpose_for_leaving_marriage
+purpose_for_leaving_family
+purpose_for_leaving_medical
+purpose_for_leaving_job_hotel
+purpose_for_leaving_job_household
+border_cross_night
+border_cross_off_road
+border_cross_foot
+border_cross_vehicle
+id_made_no
+id_made_real
+id_made_fake
+id_made_false_name
+id_made_other_false
+id_kept_by_broker
+legal_action_taken_staff_police_not_enough_info
+legal_action_taken_staff_trafficker_ran
+legal_action_taken_staff_trafficker_relative
+legal_action_taken_staff_pv_afraid_reputation
+legal_action_taken_staff_pv_afraid_safety
+legal_action_taken_staff_pv_or_family_bribed
+legal_action_taken_staff_pv_does_not_believe
+legal_action_taken_staff_pv_threatened
+legal_action_taken_staff_family_not_willing
+police_station_took_statement
+police_station_took_statement_privately
+police_station_victim_name_given_to_media
+police_station_gave_trafficker_access_to_pv
+police_interact_disrespectful
+police_interact_unprofessional
+police_interact_resistant_to_fir
+police_interact_none
+victim_statement_certified
+police_do_not_believe_crime
+police_say_not_enough_evidence
+trafficker_ran_away
+unable_to_locate_trafficker
+pv_will_not_testify
+delayed_waiting_for_other_traffickers
+police_are_scared
+suspect_corruption_or_bribes
+pv_think_would_have_been_trafficked
+exploitation_forced_prostitution_exp
+exploitation_forced_prostitution_occ
+exploitation_sexual_abuse_exp
+exploitation_sexual_abuse_occ
+exploitation_physical_abuse_exp
+exploitation_physical_abuse_occ
+exploitation_debt_bondage_exp
+exploitation_debt_bondage_occ
+exploitation_forced_labor_exp
+exploitation_forced_labor_occ
+exploitation_organ_removal_exp
+exploitation_organ_removal_occ
+exploitation_other_exp
+exploitation_other_occ
+reported_blue_flags
+total_blue_flags
+purpose_for_leaving_job_massage
+case_exploration_under_16_separated
+case_exploration_under_18_sent_job
+case_exploration_under_16_sexually_abused
+case_exploration_female_18_30_gulf_country
+case_exploration_detained_against_will
+case_exploration_abused
+suspected_trafficker_count
+border_cross_air
+known_broker_days
+married_broker_days
+case_exploration_gulf_country
+police_station_threats_prevented_statement
+case_filed_against
+arrested
+definitely_trafficked_many
+has_trafficked_some
+suspected_trafficker
+dont_believe_trafficker
+pv_definitely_trafficked_many
+pv_has_trafficked_some
+pv_suspected_trafficker
+pv_dont_believe_trafficker
+Name
+Arrested
+Case_ID
+Total_Arrests
+destination_gulf
+destination_unknown
+destination_Nepal
+destination_India
+destination_Delhi
+destination_Gorakhpur
+destination_Bihar
+destination_Mumbai
+destination_Sunauli
+destination_Banaras
+destination_Kolkata
+recruited_agency_pb2
+recruited_broker_pb2
+how_recruited_broker_online_pb2
+how_recruited_broker_approached_pb2
+known_broker_pb2
+married_broker_pb2
+expected_earning_pb2
+id_source_pb2
+exploitation_forced_prostitution_pb2
+exploitation_sexual_abuse_pb2
+exploitation_physical_abuse_pb2
+exploitation_debt_bondage_pb2
+exploitation_forced_labor_pb2
+exploitation_organ_removal_pb2
+exploitation_other_pb2
+travel_expenses_paid_by_broker_pb2
+travel_expenses_paid_by_broker_repaid_pb2
+travel_expenses_paid_to_broker_pb2
+education_Primary
+education_Secondary
+education_None/Illiterate
+education_nan
+education_University
+station_id_3.0
+station_id_0.0
+station_id_30.0
+station_id_1.0
+station_id_2.0
+station_id_4.0
+station_id_6.0
+station_id_7.0
+station_id_5.0
+station_id_9.0
+station_id_8.0
+station_id_10.0
+station_id_11.0
+station_id_27.0
+station_id_25.0
+station_id_12.0
+station_id_24.0
+station_id_13.0
+station_id_14.0
+station_id_15.0
+station_id_16.0
+station_id_20.0
+station_id_18.0
+station_id_19.0
+station_id_29.0
+station_id_21.0
+station_id_23.0
+station_id_22.0
+role_Broker
+role_Companion
+role_nan
+role_India Trafficker
+role_Trafficker
+role_Husband
+role_Manpower
+role_Witness
+role_ID Facilitator
+role_Host
+role_Agent
+role_Sex Industry
+role_husband
+role_Grand Father in Law
+role_
+role_Brothel Manager
+role_Prostitute
+role_Complainant
+role_Suspect
+role_relative victim's own uncle
+role_President of School
+role_Manager
+role_Brothel Owner
+role_Suspect of Rape
+role_(Himal Int'l Recruitment Service)
+pv_occupation_wage laborer
+pv_occupation_farmer
+pv_occupation_domestic work
+pv_occupation_hotel
+pv_occupation_business owner
+pv_occupation_Studying
+pv_occupation_migrant worker
+pv_occupation_unemployed
+pv_occupation_tailoring
+pv_occupation_housewife
+pv_occupation_In Beauty Parlour
+pv_occupation_Works in Department Store
+pv_occupation_Job
+pv_occupation_College student
+pv_occupation_Job  holder
+pv_occupation_
+pv_occupation_Job holder
+pv_occupation_factory
+pv_occupation_student
+pv_occupation_Work in bread factory
+pv_occupation_Student
+pv_occupation_studying
+pv_occupation_Teacher
+pv_occupation_study at home
+pv_occupation_Pathibhara tailors
+pv_occupation_shopkeeper
+pv_occupation_nan
+pv_occupation_Distillery
+pv_occupation_Parlor and tailoring
+pv_occupation_Job in a hotel
+pv_occupation_Foreign employment
+pv_occupation_In lab
+pv_occupation_Going and coming foreign land
+pv_occupation_Beauty Parlour
+pv_occupation_Garment co.
+pv_occupation_Study
+pv_occupation_livestock breeding
+pv_occupation_Usually she stay her home
+pv_occupation_working as Tea factory
+pv_occupation_staying at house
+pv_occupation_doing own business
+pv_occupation_working at Hospital
+pv_occupation_work at the hotel
+pv_occupation_women development
+pv_occupation_waitress at resturant
+pv_occupation_didn't have any work
+pv_occupation_Boutique
+pv_occupation_Homemaker
+pv_occupation_Orchestra dancer
+pv_occupation_Dance Teacher
+pv_occupation_Beauty Parlor Student
+pv_occupation_cook
+pv_occupation_win win company
+pv_occupation_Stays at home
+pv_occupation_Dancer
+pv_occupation_Works at fency shop
+pv_occupation_No job
+pv_occupation_Stuying
+pv_occupation_Studyinjg
+pv_occupation_In cosmetic
+pv_occupation_Running the  parlour
+pv_occupation_ Foreign Employment
+pv_occupation_Student+JOB
+pv_occupation_Works in court
+pv_occupation_Win-Win company of Banaras
+pv_occupation_working as a teacher
+pv_occupation_animal husbandry
+pv_occupation_Wks in radio media
+pv_occupation_Marketing
+pv_occupation_Study,Dance in archestra
+pv_occupation_Sonata company
+pv_occupation_Works in Army
+pv_occupation_Collecting money in cooperative bank
+pv_occupation_Supplying goods in shops
+pv_occupation_Just stays at home
+pv_occupation_Come from abroad  some days ago
+pv_occupation_Studying in class ten
+pv_occupation_Studying in class VIII
+pv_occupation_In garment shop
+pv_occupation_In hospital
+pv_occupation_At home
+pv_occupation_work on tractor vehicle
+pv_occupation_shoes shop
+pv_occupation_Just gave her high school exam
+pv_occupation_Scrap Collector
+pv_occupation_return from foreign  employment
+pv_occupation_Housewife
+pv_occupation_dropped her study and now living with her grandfather.
+pv_occupation_Child
+pv_occupation_Domestic worker in Syria Now
+pv_occupation_Dancer, Chorus
+pv_occupation_work at the Tractor
+pv_occupation_Domestic work in abroad
+pv_occupation_Have come from abroad some days ago
+pv_occupation_Mason
+pv_occupation_In Finance
+pv_occupation_Dance teacher
+pv_occupation_Dancebar
+pv_occupation_work at own house
+pv_occupation_at home
+pv_occupation_Marketing Medicine
+pv_occupation_Artist
+pv_occupation_staying at home
+pv_occupation_staying house
+pv_occupation_Prostitute
+pv_occupation_Actress
+pv_occupation_Laborer
+pv_occupation_Farmer
+pv_occupation_House wife
+pv_occupation_Tailoring
+pv_occupation_Chaudhary
+pv_occupation_stayed at home
+pv_occupation_stayed at house
+pv_occupation_Come from abroad
+pv_occupation_Dance in  Dance bar
+occupation_
+occupation_Job holder
+occupation_Wage Labor
+occupation_Recruitment Agent
+occupation_Business Owner
+occupation_Job in India
+occupation_Pharmacy
+occupation_Don't know
+occupation_Studying,student
+occupation_Cook
+occupation_Farmer
+occupation_Police
+occupation_Studying
+occupation_Job
+occupation_None
+occupation_Student
+occupation_Tauras Farm
+occupation_Works in a hotel
+occupation_Job in Gulf
+occupation_Driver
+occupation_Mototcycle mechanic
+occupation_In shop
+occupation_electrical work
+occupation_Contractor
+occupation_Runs archestra
+occupation_work at hotel
+occupation_Guard
+occupation_Teacher
+occupation_student
+occupation_Furniture
+occupation_Vehicle driver
+occupation_Just stays at home
+occupation_come from abroad
+occupation_Work in tea factory
+occupation_Works in tea factory
+occupation_driver
+occupation_Hotel owner
+occupation_labor tractor
+occupation_didn't know
+occupation_sex worker
+occupation_Make passport
+occupation_Working in a factory
+occupation_Medical
+occupation_Bangle business
+occupation_D.D. company
+occupation_In D.D. company
+occupation_In hotel
+occupation_House wife
+occupation_INGO
+occupation_Works in Mill
+occupation_Domestic work
+occupation_Job in D.D. company
+occupation_In Win-win company
+occupation_Housewife
+occupation_Planning to go abroad
+occupation_Win-Win co.
+occupation_General store
+occupation_Marketing
+occupation_In D.D. co.
+occupation_Cake shop
+occupation_Job in Win-Win  company
+occupation_Road maker
+occupation_Security guard
+occupation_Garment co.
+occupation_Dances in R.K. Stars
+occupation_D. D. Co.
+occupation_Factory
+occupation_D.D company teacher
+occupation_livestock breeding
+occupation_Home tution
+occupation_staying home
+occupation_Hotel
+occupation_work in Hotel
+occupation_going to work for D.D company
+occupation_as agent(sending girl aboard)
+occupation_D.D company
+occupation_staying house
+occupation_Agent of the D.D company
+occupation_working at the D.D company
+occupation_work at the D.D company
+occupation_survey engineer
+occupation_Army
+occupation_job in gulf
+occupation_working at school
+occupation_works in a hotel
+occupation_Agent base here at Kathmandu sends girls to India with other agents
+occupation_Works in Airport
+occupation_works in Grocery shop
+occupation_Work in Hotel
+occupation_Left school and now works
+occupation_Doctor
+occupation_person taking people to recruit in D.D company
+occupation_Works at Ncell center
+occupation_Has his own hotel
+occupation_Politician
+occupation_House Construction Contractor
+occupation_Lunch cafe
+occupation_Works in a company
+occupation_Unemployed
+occupation_working as a cook helper
+occupation_win-win company
+occupation_Mobile Shop
+occupation_DD Company
+occupation_Guest House Manager
+occupation_Tailoring
+occupation_Job in hotel
+occupation_Travelling for job
+occupation_Conductor
+occupation_Helper
+occupation_Government Worker
+occupation_He has got his own mobile  shop
+occupation_Owner of the van
+occupation_Business
+occupation_One who lives in sister's hotel
+occupation_Work of data entry
+occupation_Chatpate seller
+occupation_Studying in Gujrat
+occupation_Just staying at home
+occupation_In brothel
+occupation_Dance
+occupation_Remains idle at home
+occupation_Reporter
+occupation_Welding
+occupation_Businessman
+occupation_Waiter
+occupation_Work as Buddhist nun
+occupation_Agent taking girls to India
+occupation_Works in Hospital
+occupation_Barber
+occupation_In hospital
+occupation_Work in D.D. company
+occupation_Partner in D.D. company
+occupation_Jobless
+occupation_Carpenter
+occupation_In furniture
+occupation_Boss of archestra
+occupation_S.R. company
+occupation_An artist in Maoist party
+occupation_Has hotel
+occupation_Recently married
+occupation_Agriculture
+occupation_Studying 10+2
+occupation_Domestic job in India
+occupation_No job
+occupation_Reads Buddhist scripture in villag
+occupation_Internet
+occupation_House wiring
+occupation_doing business at Jogbani
+occupation_he came from aboard
+occupation_returned back from abroad
+occupation_searching kids
+occupation_Handing kids to Indian person
+occupation_Shoe factory
+occupation_In Factory
+occupation_Painter
+occupation_Lives in iraq
+occupation_Mechanic
+occupation_Manpower Agent
+occupation_Study
+occupation_Mason
+occupation_works in hotel
+occupation_Ihotel
+occupation_Cosmetic shop
+occupation_contractor
+occupation_Bus  conductor
+occupation_Electrician
+occupation_Knititng
+occupation_monk
+occupation_Monk
+occupation_Plumber
+occupation_Sex business
+occupation_Labour
+occupation_Trekking Guide
+occupation_Bank
+occupation_Cable worker
+occupation_Pastor
+occupation_President of School
+occupation_prostitute
+occupation_Manager
+occupation_President of School and Founder of NGO
+occupation_Christian Community Leader
+occupation_work on gulf country
+occupation_Runs hotel
+occupation_just came from aboard
+occupation_Dance teacher
+occupation_Hotel business (Tamakchhya Hotel)
+occupation_Ex. army
+occupation_In garage
+occupation_works for God's kingdom
+occupation_In a hotel
+occupation_Ina hotel
+occupation_Porter
+occupation_Own domestic work
+occupation_Works in factory
+occupation_housewife
+occupation_work on dancebar
+occupation_studying
+occupation_work on saloon
+occupation_waiter
+occupation_sending girl and boy aboard
+occupation_mechanic
+occupation_Labor
+occupation_own hotel
+occupation_work in Teafarm
+occupation_Agent sending girls abroad
+occupation_Fashion related work
+occupation_Empoream Company
+occupation_Don't Know
+occupation_Broker
+occupation_vehicle conductor
+occupation_Sending people abroad
+occupation_Salesperson
+occupation_Dancer
+occupation_Manpower
+occupation_Bus conductor
+occupation_working at the gulf country
+occupation_Hotel Owner
+occupation_Broker (Sending people abroad)
+occupation_Shopkeeper
+occupation_House-hold work (abroad)
+occupation_Going abroad.
+occupation_going to marriage ceremony
+occupation_working on furniture company
+occupation_Hotel management
+occupation_Agent
+occupation_conductor of bus
+occupation_Garage
+occupation_working iron factory
+occupation_Dance Jockey
