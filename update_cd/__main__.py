@@ -8,6 +8,7 @@ import pandas as pd
 import arrest_module as am
 import db_connect as dc
 import gsheets as gs
+import network_db as ndb
 import soc_pipe as sp
 import entity_groups as eg
 import priority_calc as pc
@@ -106,6 +107,9 @@ def main(db_cred, gs_cred, gs_name):
                                               'Suspect_ID')
 
     suspects.active = gs.new_relationship_gsheets(suspects.active, 3, credentials)
+
+    new_links_dict = gs.get_sheets_for_network_db(suspects, credentials)
+    ndb.add_update_links_dict(new_links_dict)
 
     new_gsheets = eg.Entity_Group.save_csvs()
 
