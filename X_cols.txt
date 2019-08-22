@@ -227,6 +227,8 @@ pv_occupation_nan
 pv_occupation_Distillery
 pv_occupation_Parlor and tailoring
 pv_occupation_Job in a hotel
+pv_occupation_Laborer
+pv_occupation_Farmer
 pv_occupation_Foreign employment
 pv_occupation_In lab
 pv_occupation_Going and coming foreign land
@@ -303,8 +305,6 @@ pv_occupation_staying at home
 pv_occupation_staying house
 pv_occupation_Prostitute
 pv_occupation_Actress
-pv_occupation_Laborer
-pv_occupation_Farmer
 pv_occupation_House wife
 pv_occupation_Tailoring
 pv_occupation_Chaudhary
@@ -533,6 +533,9 @@ occupation_Broker (Sending people abroad)
 occupation_Shopkeeper
 occupation_House-hold work (abroad)
 occupation_Going abroad.
+occupation_Household work
+occupation_Working in India
+occupation_Bus Conductor
 occupation_going to marriage ceremony
 occupation_working on furniture company
 occupation_Hotel management

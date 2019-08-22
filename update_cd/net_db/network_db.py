@@ -4,170 +4,100 @@ This is a  module for setting up and updating a database of known suspect associ
 
 import pandas as pd
 import re
-from sqlalchemy import Column, Integer, String
-from sqlalchemy import create_engine
-from sqlalchemy import ForeignKey
-from sqlalchemy import Sequence
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql import exists
+from net_db.edge_cls import EdgeType, Edge
+from net_db.account_cls import AccountType, Account
+from net_db.suspect_cls import Suspect
+from net_db.case_cls import Case
+from net_db.case_suspect_cls import CaseSuspect
+from net_db import engine, session, Base
+
 pd.options.mode.chained_assignment = None
 
 
-Base = declarative_base()
+def create_database(engine):
+    """Creates database using declarative_base.
 
-class Suspect(Base):
-    '''Table containing suspect names and links metadata.'''
-    __tablename__ = "suspects"
-
-    id = Column(Integer, Sequence('sus_id_seq'), primary_key=True)
-    name = Column(String(50))
-    first_degree_links = Column(Integer)
-    second_degree_links = Column(Integer)
-    first_degree_case_links = Column(Integer)
-    second_degree_case_links = Column(Integer)
-
-    account = relationship("Account", backref="suspects", order_by="Account.id")
-    edge = relationship("Edge", backref="suspects", order_by="Edge.id")
-
-    def __repr__(self):
-        return "<Suspect(name='%s', first_degree_case_links='%d', second_degree_case_links='%d', \
-        first_degree_links='%d', second_degree_links='%d')>" % (
-            self.name, self.first_degree_case_links, self.second_degree_case_links,
-            self.first_degree_links, self.second_degree_links)
-
-
-class Account(Base):
-    '''Table containing data on accounts, including phone numbers and facebook pages.'''
-    __tablename__ = "accounts"
-    # __table_args__ = {'extend_existing': True}
-
-    id = Column(Integer, Sequence('acc_id_seq'), primary_key=True)
-    account_name = Column(String(50), nullable=False)
-    account_label = Column(String(50))
-    account_type_id = Column(Integer, ForeignKey('account_types.id'))
-    suspect_id = Column(Integer, ForeignKey('suspects.id'))
-    suspect = relationship(Suspect, primaryjoin=suspect_id == Suspect.id)
-
-
-    def __repr__(self):
-        return "<Account(account_name='%s', account_label='%s', account_type_id'%d')>" % (
-            self.account_name, self.account_label, self.account_type_id)
-
-
-Suspect.accounts = relationship(
-    "Account", order_by=Account.id, back_populates="suspect")
-
-class Account_Type(Base):
-    '''Table for the types of connections between accounts.'''
-    __tablename__ = "account_types"
-    id = Column(Integer, primary_key=True)
-    account_type = Column(String(20), nullable=False)
-
-    def __repr__(self):
-        return "<Account_Type(account_type='%s')>" % self.account_type
-
-
-class Edge_Type(Base):
-    '''Table for the types of connections between accounts.'''
-    __tablename__ = "edge_types"
-    # __table_args__ = {'extend_existing': True}
-    id = Column(Integer, primary_key=True)
-    edge_type = Column(String(20), nullable=False)
-    edge_type_weight = Column(Integer)
-
-    def __repr__(self):
-        return "<Edge_Type(edge_type='%s', edge_type_weight='%d')>" % (
-            self.edge_type, self.edge_type_weight)
-
-
-class Edge(Base):
-    '''Table with all known associations between accounts.'''
-    __tablename__ = "edges"
-    id = Column(Integer, Sequence('edge_id_seq'), primary_key=True)
-    source_suspect_id = Column(Integer, ForeignKey('suspects.id'))
-    source_account_id = Column(Integer, ForeignKey('accounts.id'))
-    target_account_id = Column(Integer, ForeignKey('accounts.id'))
-    edge_type_id = Column(Integer, ForeignKey('edge_types.id'))
-    edge_direction = Column(Integer)
-    edge_combo_id = Column(String(20))
-
-    def __repr__(self):
-        return "<Edge(source_suspect_id='%d', source_account_id='%d', target_account_id='%d')>" % (
-            self.source_suspect_id, self.source_account_id, self.target_account_id)
-
-
-class Case(Base):
-    '''Table with Case IDs associated with each suspect.'''
-    __tablename__ = "cases"
-    id = Column(Integer, Sequence('case_id_seq'), primary_key=True)
-    case_number = Column(String(8))
-    case_date = Column(String(8))
-
-    case_sus = relationship("Case_Suspect", backref="case_suspect", order_by="Case_Suspect.id")
-
-
-    def __repr__(self):
-        return "<Case(case_number='%s', case_date='%s')>" % (
-            self.case_number, self.case_date)
-
-
-class Case_Suspect(Base):
-    '''Table linking cases and suspects (many to many).'''
-    __tablename__ = "case_suspects"
-    id = Column(Integer, Sequence('case_suspect_id_seq'), primary_key=True)
-    case_id = Column(Integer, ForeignKey('cases.id'))
-    suspect_id = Column(Integer, ForeignKey('suspects.id'))
-    suspect_case_id = Column(String(20))
-
-    case = relationship(Case, primaryjoin=case_id == Case.id)
-    suspect = relationship(Suspect, primaryjoin=suspect_id == Suspect.id)
-
-    def __repr__(self):
-        return "<Case_Suspect(suspect_id='%d', case_id='%d', suspect_case_id='%d')>" % (
-            self.suspect_id, self.case_id, self.suspect_case_id)
-
-
-
-engine = create_engine('sqlite:///test_db.db')
-Session = sessionmaker(bind=engine)
-session = Session()
-
-
-def setup_database(engine, session):
+    Args:
+        engine: Object that helps to create and interact with database.
+    """
     Base.metadata.create_all(engine)
+
+
+def create_edge_types(session):
+    """Creates edge types in database which describe the connection or relationship
+    between persons of interest.
+
+    Args:
+        session: The active session for connecting to the database.
+    """
     session.add_all([
-        Edge_Type(id=1, edge_type='Facebook Friend', edge_type_weight=3),
-        Edge_Type(id=2, edge_type='Facebook Like', edge_type_weight=2),
-        Edge_Type(id=3, edge_type='Phone Contact', edge_type_weight=5),
-        Edge_Type(id=4, edge_type='Phone Call', edge_type_weight=4),
-        Edge_Type(id=5, edge_type='SMS', edge_type_weight=4),
+        EdgeType(id=1, edge_type='Facebook Friend', edge_type_weight=3),
+        EdgeType(id=2, edge_type='Facebook Like', edge_type_weight=2),
+        EdgeType(id=3, edge_type='Phone Contact', edge_type_weight=5),
+        EdgeType(id=4, edge_type='Phone Call', edge_type_weight=4),
+        EdgeType(id=5, edge_type='SMS', edge_type_weight=4),
     ])
     session.commit()
 
+
+def create_account_types(session):
+    """Creates account types in database which describe the connection or relationship
+    between persons of interest.
+
+    Args:
+        session: The active session for connecting to the database.
+    """
     session.add_all([
-        Account_Type(id=1, account_type='Facebook'),
-        Account_Type(id=2, account_type='Phone')
+        AccountType(id=1, account_type='Facebook'),
+        AccountType(id=2, account_type='Phone')
     ])
     session.commit()
 
-    return
+
+def setup_database(engine=engine, session=session):
+    """Sets up a new database by initiating it and defining edge and account types.
+
+    Args:
+        engine: Object that helps to create and interact with database.
+        session: The active session for connecting to the database.
+    """
+    create_database(engine)
+    create_edge_types(session)
+    create_account_types(session)
 
 
 #old_entries = pd.read_csv('old_entries.csv', encoding="ISO-8859-1")
 
-def import_initial_data(old_entries, engine):
-    '''Setup database by importing old entries.'''
 
-    # Note: This is just to show how I got the initial data in, I'm not planning to keep
-    # this long function in the module after the db is set up.
+def add_old_suspects(old_entries, engine):
+    """Adds names of suspects to database.
 
+    Assumes that suspect names in dataframe will be unique to each individual.
+
+    Args:
+        old_entries: A dataframe containing source and target link data for
+        previously collected cases.
+        engine: Object that helps to create and interact with database.
+    """
     oe_suspects = old_entries[['Name']].drop_duplicates()
     oe_suspects.to_sql(name='suspects',
                        con=engine,
                        if_exists='append',
                        index=False)
+
+
+def add_old_accounts(old_entries, engine):
+    """Adds account names to database.
+
+    Creates an entry for each unique account in the accounts table, generating
+    an id for each. For suspect accounts it associates each account with a
+    corresponding suspect id.
+
+    Args:
+        old_entries: A dataframe containing source and target link data for
+        previously collected cases.
+        engine: Object that helps to create and interact with database.
+    """
     suspects = pd.read_sql('select * from suspects', engine)
     oe_sus_source = old_entries[['Name', 'Source']].drop_duplicates()
     oe_accounts = pd.merge(oe_sus_source,
@@ -192,6 +122,19 @@ def import_initial_data(old_entries, engine):
                               if_exists='append',
                               index=False)
 
+
+def add_old_edges(old_entries, engine):
+    """Adds edges describing associations between accounts to database.
+
+    Maps the connections between source and target accounts and stores
+    their ids in adjacent columns. Creates a 'combo id' which describes
+    the relationship including directionality.
+
+    Args:
+        old_entries: A dataframe containing source and target link data for
+        previously collected cases.
+        engine: Object that helps to create and interact with database.
+    """
     accounts = pd.read_sql('select * from accounts', engine)
     account_ids = accounts[['account_name', 'id', 'suspect_id']]
     edges = pd.merge(old_entries,
@@ -239,47 +182,98 @@ def import_initial_data(old_entries, engine):
                  con=engine,
                  if_exists='append',
                  index=False)
-    oe_cases = old_entries[['Case_ID','Suspect_Case_ID']]
+
+
+def add_old_cases(old_entries, engine):
+    """Adds case numbers to database.
+
+    Args:
+        old_entries: A dataframe containing source and target link data for
+        previously collected cases.
+        engine: Object that helps to create and interact with database.
+    """
+    oe_cases = old_entries[['Case_ID', 'Suspect_Case_ID']]
     oe_cases['case_date'] = ''
-    oe_cases = oe_cases[['Case_ID','case_date']]
-    oe_cases.rename(columns={'Case_ID':'case_number'}, inplace=True)
+    oe_cases = oe_cases[['Case_ID', 'case_date']]
+    oe_cases.rename(columns={'Case_ID': 'case_number'}, inplace=True)
     oe_cases = oe_cases.drop_duplicates('case_number')
     oe_cases.to_sql(name='cases',
                     con=engine,
                     if_exists='append', index=False)
+
+
+def add_old_case_suspects(old_entries, engine):
+    """Adds case_suspect table entries to database linking cases and suspects.
+
+    Args:
+        old_entries: A dataframe containing source and target link data for
+        previously collected cases.
+        engine: Object that helps to create and interact with database.
+    """
     oe_cases = pd.read_sql('select * from cases', engine)
     oe_case_suspects = old_entries[['Case_ID', 'Suspect_Case_ID', 'Name']]
     oe_case_suspects = pd.merge(oe_cases,
-                             oe_case_suspects,
-                             how='left',
-                             left_on='case_number',
-                             right_on='Case_ID')
+                                oe_case_suspects,
+                                how='left',
+                                left_on='case_number',
+                                right_on='Case_ID')
     oe_case_suspects = pd.merge(oe_case_suspects,
-                                 suspects[['name', 'id']],
-                                 how='left',
-                                 left_on='Name',
-                                 right_on='name')
-    oe_case_suspects = oe_case_suspects[['id_x','id_y','Suspect_Case_ID']]
+                                suspects[['name', 'id']],
+                                how='left',
+                                left_on='Name',
+                                right_on='name')
+    oe_case_suspects = oe_case_suspects[['id_x', 'id_y', 'Suspect_Case_ID']]
     oe_case_suspects.columns = ['case_id', 'suspect_id', 'suspect_case_id']
-    oe_case_suspects.drop_duplicates(subset='suspect_id',inplace=True)
+    oe_case_suspects.drop_duplicates(subset='suspect_id', inplace=True)
     oe_case_suspects.to_sql(name='case_suspects',
-                    con=engine,
-                    if_exists='append', index=False)
+                            con=engine,
+                            if_exists='append', index=False)
 
 
-def add_suspect(new_links):
-    '''Add a suspect's name to the database and return his db suspect_id.'''
-    session = Session()
+def import_old_data(old_entries, engine=engine):
+    """Calls all of the functions needed to import old_entries into database.
+
+    Args:
+        old_entries: A dataframe containing source and target link data for
+        previously collected cases.
+        engine: Object that helps to create and interact with database.
+    """
+    add_old_suspects(old_entries, engine)
+    add_old_accounts(old_entries, engine)
+    add_old_edges(old_entries, engine)
+    add_old_cases(old_entries, engine)
+    add_old_case_suspects(old_entries, engine)
+
+
+def add_suspect(new_links, session):
+    """Adds a suspect's name to the database.
+
+    Args:
+         new_links: A dataframe containing source and target link data.
+         session: The active session for connecting to the database.
+
+    Returns:
+         A unique suspect_id as an integer which is generated when the
+         name is added to the 'suspects' table.
+    """
     new_sus_name = new_links['Name'][1]
     new_suspect = Suspect(name=new_sus_name)
     session.add(new_suspect)
     session.commit()
-    session.close()
     return new_suspect.id
 
 
-def add_case(new_links):
-    '''Add case number to database and return table case ID.'''
+def add_case(new_links, session):
+    """Adds the case number to the database.
+
+    Args:
+         new_links: A dataframe containing source and target link data.
+         session: The active session for connecting to the database.
+
+    Returns:
+         A unique case_id as an integer which is generated when the
+         case number is added to the 'cases' table.
+    """
     case_number = new_links['Case_ID'][1]
     new_case = Case(case_number=case_number)
     session.add(new_case)
@@ -287,25 +281,52 @@ def add_case(new_links):
     return new_case.id
 
 
-def add_case_suspect_link(new_suspect_id, new_case_id, new_links):
-    '''Add case_suspect entry linking case and suspect tables.'''
-    new_case_suspect = Case_Suspect(case_id=new_case_id,
-                                    suspect_id=new_suspect_id,
-                                    suspect_case_id=new_links['Suspect_Case_ID'][1])
+def add_case_suspect_link(new_suspect_id, new_case_id, new_links, session):
+    """Adds case_suspect table entry to database linking case and suspect tables.
+
+    Args:
+        new_suspect_id: The unique identifier for the suspect obtained from
+        'add_suspect' function.
+        new_case_id: The unique identifier for the case obtained from
+        'add_case' function.
+        new_links: A dataframe containing source and target link data.
+        session: The active session for connecting to the database.
+    """
+    new_case_suspect = CaseSuspect(case_id=new_case_id,
+                                   suspect_id=new_suspect_id,
+                                   suspect_case_id=new_links['Suspect_Case_ID'][1])
     session.add(new_case_suspect)
     session.commit()
 
 
-def get_account_type(row):
-    '''Assign account type based on whether the word 'facebook' appears in account name.'''
-    match = re.findall(r'facebook', str(row))
+def get_account_type(account_name):
+    """Assigns account type.
+
+    Checks to see whether the word 'facebook' appears in account name,
+    and if it does not it assumes the account type is a phone number.
+
+    Args:
+        account_name: The unique name of the account, typically a facebook
+        account or a phone number.
+
+    Returns:
+        An integer id representing the account type.
+        """
+    match = re.findall(r'facebook', str(account_name))
     if match:
         return 1
     else:
         return 2
 
+
 def add_new_accounts(new_links, new_suspect_id):
-    '''Add source and target accounts from csv file to database.'''
+    """Imports source and target accounts into database.
+
+    Args:
+        new_links: A dataframe containing source and target link data.
+        new_suspect_id: The unique identifier for the suspect obtained from
+        'add_suspect' function.
+    """
     new_sus_source = new_links[['Name', 'Source']].drop_duplicates()
     new_sus_source['account_label'] = ''
     new_sus_source['suspect_id'] = new_suspect_id
@@ -328,7 +349,11 @@ def add_new_accounts(new_links, new_suspect_id):
 
 
 def add_new_edges(new_links):
-    '''Add edges from csv file to database.'''
+    """Adds edges to database.
+
+    Args:
+        new_links: A dataframe containing source and target link data.
+    """
     accounts = pd.read_sql('select * from accounts', engine)
     account_ids = accounts[['account_name', 'id', 'suspect_id']]
     new_edges = pd.merge(new_links,
@@ -381,8 +406,13 @@ def add_new_edges(new_links):
                      index=False)
 
 
-def update_first_degree_links(engine):
-    '''Calculates first degree links for each suspect and updates database with them.'''
+def update_first_degree_links():
+    """Calculates first degree links for each suspect.
+
+    Counts the number of relationships (i.e. facebook friends or phone contacts)
+    recorded for each suspect and updates the applicable column in the 'suspects'
+    table.
+    """
     edges = pd.read_sql('select * from edges', engine)
     suspect_links = pd.DataFrame(
         edges.groupby(
@@ -405,8 +435,14 @@ def update_first_degree_links(engine):
         index=False)
 
 
-def update_second_degree_links(engine):
-    '''Calculates second degree links for each suspect and updates database with them.'''
+def update_second_degree_links():
+    """Calculates second degree links for each suspect.
+
+    Counts the number of relationships (i.e. facebook friends or phone contacts)
+    where the target node is in at least one other relationship with a different
+    source node for each suspect and updates the applicable column in the 'suspects'
+    table.
+    """
     edges = pd.read_sql('select * from edges', engine)
     second_degree = pd.DataFrame(
         edges.groupby(
@@ -443,7 +479,18 @@ def update_second_degree_links(engine):
 
 
 def index_multi_match(df, match_col1, match_col2, index):
-    '''Returns counts and comma separated lists of indices for matches between two columns.'''
+    """Finds matching entries between two columns and gets adjacent content from
+    index column.
+
+    Args:
+        df: dataframe used as search space.
+        match_col1: name of first column in dataframe to be used in match.
+        match_col2: name of second column in dataframe to be used in match.
+        index: name of column with variables to be indexed upon finding a match.
+
+    Returns:
+         Counts and comma separated lists of indexes for matches between two columns.
+    """
     df1 = df[[match_col1, index]]
     df2 = df[[match_col2, index]]
     df1 = df1.rename(columns={match_col1: match_col2})
@@ -470,8 +517,17 @@ def index_multi_match(df, match_col1, match_col2, index):
 
 
 def update_case_links(degree):
-    '''Calculates for each suspect first or second degree links
-    which have a different case number.'''
+    """Calculates first or second degree case links for each suspect.
+
+    For each suspect, counts the number of relationships (i.e. facebook friends
+    or phone contacts) where the target node (and any of the target node's
+    relationships if 'second' degree) has a different case number from the source
+    node and updates the applicable column in the 'suspects table.
+
+    Args:
+        degree: The links to consider, either first or second degree.
+
+    """
     if degree == 'first':
         col2 = 'source_account_id'
         sus_col = 'first_degree_case_links'
@@ -494,7 +550,7 @@ def update_case_links(degree):
                               edges[['source_account_id', 'source_suspect_id']],
                               how='left', left_on='match', right_on='source_account_id')
         case_links.drop_duplicates(subset='source_suspect_id', inplace=True)
-        case_links.rename(columns={'count':'case_count'}, inplace=True)
+        case_links.rename(columns={'count': 'case_count'}, inplace=True)
         suspects = pd.read_sql('select * from suspects', engine)
         suspects_cols = len(suspects.columns)
         suspects = pd.merge(
@@ -513,20 +569,38 @@ def update_case_links(degree):
             index=False)
 
 
-def add_update_links(new_links):
-    '''Create new entries in db from "new_links" and update link calculations.'''
-    new_suspect_id = add_suspect(new_links)
-    new_case_id = add_case(new_links)
-    add_case_suspect_link(new_suspect_id, new_case_id, new_links)
+def add_entries(new_links, session=session):
+    """Adds new suspect, account, and edge data to the relevant tables.
+
+    Args:
+        new_links: A dataframe containing source and target link data.
+        session: The active session for connecting to the database.
+    """
+    new_suspect_id = add_suspect(new_links, session)
+    new_case_id = add_case(new_links, session)
+    add_case_suspect_link(new_suspect_id, new_case_id, new_links, session)
     add_new_accounts(new_links, new_suspect_id)
     add_new_edges(new_links)
-    update_first_degree_links(engine)
-    update_second_degree_links(engine)
+
+
+def add_entries_dict(d):
+    """Runs 'add_entries' function in a loop.
+
+    Args:
+        d: A dictionary of objects belonging to the GSheets class.
+    """
+    for i in d:
+        add_entries(d[i].df)
+
+
+def update_links(session=session):
+    """Update link stats of all types and then close the session.
+
+    Args:
+        session: The active session for connecting to the database.
+    """
+    update_first_degree_links()
+    update_second_degree_links()
     update_case_links('first')
     update_case_links('second')
-
-
-def add_update_links_dict(d):
-    '''Run "add_update_links" function in a loop over a dictionary of GSheet objects.'''
-    for i in d:
-        add_update_links(d[i].df)
+    session.close()

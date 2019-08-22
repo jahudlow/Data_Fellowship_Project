@@ -1,8 +1,11 @@
 *.json
 *.ini
 *.ipynb
-soc_model.sav
+*.sav
 X_cols
 *.csv
 *.pyc
 *.zip
+*.db
+*egg-info/
+dist/

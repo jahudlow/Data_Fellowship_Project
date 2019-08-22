@@ -15,8 +15,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 
+
 def pre_proc(soc_df):
-    '''Takes data from DB and removes columns that won't be used.'''
+    """Takes data from DB and removes columns that won't be used."""
     dfcols = list(soc_df.columns)
     dfcols[16] = 'pv_occupation'
     soc_df.columns = dfcols
@@ -69,8 +70,9 @@ def pre_proc(soc_df):
     soc_df = soc_df.drop(columns=drop_cols)
     return soc_df
 
+
 def organize_dest(soc_df):
-    '''Clean and organize desitnation data so it is ready for feature union.'''
+    """Clean and organize desitnation data so it is ready for feature union."""
     soc_df['planned_destination'] = soc_df['planned_destination'].str.replace(r'[^\w\s]+', '')
     soc_df['destination_gulf'] = np.where(soc_df['planned_destination'].str.contains(
         'Gulf|Kuwait|Dubai|UAE|Oman|Saudi|Iraq|Qatar|Bahrain'), True, False)
@@ -95,12 +97,14 @@ def organize_dest(soc_df):
     soc_df.pb_number = soc_df.pb_number.astype(int)
     return soc_df
 
+
 def check_match(x):
     """Checks to see whether the first value is equal to or within the second value."""
     return str(x[0]) in list(str(x[1]))
 
+
 def organize_dtypes(soc_df):
-    '''Assigns relevant data types to variables.'''
+    """Assigns relevant data types to variables."""
     num_features = [
         'number_of_victims',
         'number_of_traffickers',
@@ -137,8 +141,9 @@ def organize_dtypes(soc_df):
     soc_df.drop(columns=['cif_number', 'Arrest_Date'], inplace=True)
     return soc_df
 
+
 def en_features(soc_df):
-    '''Engineer features for selected destinations Person Box variables.'''
+    """Engineer features for selected destinations Person Box variables."""
     soc_df = organize_dest(soc_df)
 
     PB_fields = [x for x in soc_df.columns if "_pb" in x[:]]
@@ -154,6 +159,7 @@ def en_features(soc_df):
 
     return soc_df
 
+
 class TypeSelector(BaseEstimator, TransformerMixin):
     """This is a class for applying transformations based on data type."""
 
@@ -166,6 +172,7 @@ class TypeSelector(BaseEstimator, TransformerMixin):
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
         return X.select_dtypes(include=[self.dtype])
+
 
 def build_transformer():
     transformer = Pipeline([
@@ -182,16 +189,18 @@ def build_transformer():
     ])
     return transformer
 
+
 def remove_recent(df, cutoff_days):
-    '''Eliminates cases more recent than the cutoff date.'''
+    """Eliminates cases more recent than the cutoff date."""
     today = date.today()
     today.strftime("%m/%d/%Y")
     df['Days'] = (today - df.loc[:, 'interview_date']) / np.timedelta64(1, 'D')
     sub_df = df[(df['Days'] > cutoff_days) | (df['Arrest'] == True)]
     return sub_df
 
+
 def train_test_val_split(sub_df, te_size=.2, val_size=.1):
-    '''Splits dataset into training, testing, and validation sets.'''
+    """Splits dataset into training, testing, and validation sets."""
     X = (sub_df.drop(columns=['Arrest',
                               'Days',
                               'interview_date',
@@ -206,8 +215,9 @@ def train_test_val_split(sub_df, te_size=.2, val_size=.1):
                                                                     test_size=val_size)
     return X_train, X_validation, y_train, y_validation
 
+
 def get_cls_pipe(clf=RandomForestClassifier()):
-    '''Builds pipeline with transformer and classifier algorithm.'''
+    """Builds pipeline with transformer and classifier algorithm."""
     transformer = build_transformer()
     cls_pipeline = Pipeline([
         ('transformer', transformer),
@@ -215,14 +225,16 @@ def get_cls_pipe(clf=RandomForestClassifier()):
     ])
     return cls_pipeline
 
+
 def pipe_predict(cls_pipeline, X_train, y_train, X_validation):
-    '''Make predictions with classifier pipeline.'''
+    """Make predictions with classifier pipeline."""
     cls_pipeline.fit(X_train, y_train)
     y_rf = cls_pipeline.predict_proba(X_validation)
     return y_rf
 
+
 def do_gridsearch(cls_pipeline, X_train, y_train):
-    '''Conducts gridsearch cross validation on selected classifer.'''
+    """Conducts gridsearch cross validation on selected classifer."""
     search_space = [{'clf': [RandomForestClassifier()],
                      'clf__bootstrap': [False, True],
                      'clf__n_estimators': [10, 100],
@@ -248,19 +260,20 @@ def do_gridsearch(cls_pipeline, X_train, y_train):
     print(best_parameters)
     return best_model
 
-def save_results(best_model, X_validation):
-    '''Pickles model and column names and saves them for later use.'''
-    filename = 'soc_model.sav'
+
+def save_results(best_model, X_validation, filename):
+    """Pickles model and column names and saves them for later use."""
     pickle.dump(best_model, open(filename, 'wb'))
     xcols = list(X_validation.columns)
     with open('X_cols.txt', 'w') as f:
         for item in xcols:
             f.write("%s\n" % item)
 
-def make_new_predictions(df):
-    '''Use existing classifier algorithm on new cases without recalculating best fit.'''
+
+def make_new_predictions(df, filename):
+    """Use existing classifier algorithm on new cases without recalculating best fit."""
     x_original_cols = [line.rstrip('\n') for line in open('X_cols.txt')]
     X = df[df.columns & x_original_cols]
-    soc_model = pickle.load(open('soc_model.sav', 'rb'))
+    soc_model = pickle.load(open(filename, 'rb'))
     df['soc'] = soc_model.predict_proba(X)[:, 1]
     return df

@@ -14,6 +14,7 @@ from oauth2client.client import SignedJwtAssertionCredentials
 from apiclient.discovery import build
 import pandas as pd
 
+
 def get_gs_cred(cred_file):
     json_key = json.load(open(cred_file))
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -22,15 +23,22 @@ def get_gs_cred(cred_file):
                                                 scope)
     return credentials
 
-def get_gsheets(workbook_name, credentials):
-    '''Return a list of Google worksheets from the name of a Google Sheet.'''
-    file = gspread.authorize(credentials)  #remember to share new sheets with client email
-    workbook = file.open(workbook_name)
+
+def get_auth(credentials):
+    """Authorize credentials for opening individual Google worksheets."""
+    auth = gspread.authorize(credentials)
+    return auth
+
+
+def get_gsheets(workbook_name, auth): #remember to share new sheets with client email
+    """Return a list of Google worksheets from the name of a Google Sheet."""
+    workbook = auth.open(workbook_name)
     gsheets = workbook.worksheets()
     return gsheets
 
+
 class GSheet:
-    '''This is a class for Google Worksheets.'''
+    """This is a class for Google Worksheets."""
     def __init__(self, wrksht):
         self.wrksht = wrksht
         self.name = re.findall(r"'(.*?)'", str(wrksht))[0]
@@ -39,8 +47,9 @@ class GSheet:
         df.drop(0, inplace=True)
         self.df = df
 
+
 def get_dfs(cdws):
-    '''Completes conversion of Google Sheets to Dataframes.'''
+    """Completes conversion of Google Sheets to Dataframes."""
     all_sheets = []
     for i in range(len(cdws)):
         sheet = GSheet(cdws[i])
@@ -48,8 +57,9 @@ def get_dfs(cdws):
     dfs = {sheet.name: sheet.df for sheet in all_sheets}
     return dfs
 
+
 def save_backups(dfs):
-    '''Saves backup files with existing Google Sheet (Case Dispatcher) data.'''
+    """Saves backup files with existing Google Sheet (Case Dispatcher) data."""
     today = date.today().strftime("%m-%d-%Y")
     zip_name = "backups/" + today + "_Backup_Sheets.zip"
     with zipfile.ZipFile(zip_name, 'w') as csv_zip:
@@ -57,20 +67,20 @@ def save_backups(dfs):
             fname = k + "_" + today + ".csv"
             csv_zip.writestr(fname, pd.DataFrame(v).to_csv())
 
-def upload_sheets(new_gsheets, credentials):
+
+def upload_sheets(new_gsheets, auth):
     """Uploads csv files to Google Sheets."""
     up_sheets = []
     for sheet in new_gsheets:
         up_sheet = open(sheet.csv, 'r').read()
         up_sheets.append(up_sheet)
-        file = gspread.authorize(credentials)
 
-        vs = file.open("Victims")
-        cvs = file.open("Closed_Vic")
-        ss = file.open("Suspects")
-        css = file.open("Closed_Sus")
-        ps = file.open("Police")
-        cps = file.open("Closed_Pol")
+        vs = auth.open("Victims")
+        cvs = auth.open("Closed_Vic")
+        ss = auth.open("Suspects")
+        css = auth.open("Closed_Sus")
+        ps = auth.open("Police")
+        cps = auth.open("Closed_Pol")
 
         gs = [vs,
               cvs,
@@ -80,17 +90,26 @@ def upload_sheets(new_gsheets, credentials):
               cps]
 
         sheet_dict = {k: v for k, v in zip(gs, up_sheets)}
-        file = gspread.authorize(credentials)
         last = len(list(sheet_dict))
         for i in range(0, last):
-            file.import_csv(
+            auth.import_csv(
                 list(
                     sheet_dict.keys())[i].id,
                 list(
                     sheet_dict.values())[i].encode('utf-8'))
 
+
+def upload_stats_sheet(auth):
+    """"""
+    today = date.today().strftime("%m/%d/%Y")
+    sh = auth.open_by_key('19bm_1qKNV2KI6O4KNzQYUpQzycayd09Iw1MJna43FVA')
+    stats_sheet = sh.sheet1
+    stats_sheet.update_acell('B2', today)
+    print("Google Sheet Case Dispatcher updated ", today)
+
+
 def new_relationship_gsheets(sus, x, credentials):
-    '''Generate new google sheets for relationship data of top x number of suspects.'''
+    """Generate new google sheets for relationship data of top x number of suspects."""
     high_priority = sus[['Suspect_ID', 'Name', 'Relationships']]
     high_priority = high_priority.iloc[0:x,:]
     for index, row in high_priority.iterrows():
@@ -101,15 +120,13 @@ def new_relationship_gsheets(sus, x, credentials):
                 share_domains=['lovejustice.ngo', 'tinyhands.org'],
                 credentials=credentials)
         else:
-            pass
-    high_priority = high_priority.iloc[:, [0, 2]]
-    high_priority.columns = ['Suspect_ID', 'Rel']
-    sus = pd.merge(sus, high_priority, how='left')
-    sus['Relationships'] = sus['Rel']
-    sus = sus.iloc[:, 0:43]
+            continue
+    y = sus.columns.get_loc('Relationships')
+    sus.iloc[0:x, y] = high_priority.iloc[0:x,2]
     return sus
 
 logger = logging.getLogger(__name__)
+
 
 def open_google_spreadsheet(spreadsheet_id: str, credentials):
     """Open sheet using gspread.
@@ -118,6 +135,7 @@ def open_google_spreadsheet(spreadsheet_id: str, credentials):
     """
     gc = gspread.authorize(credentials)
     return gc.open_by_key(spreadsheet_id)
+
 
 def create_google_spreadsheet(title, sus_name, share_domains, credentials):
     """Create a new spreadsheet and open gspread object for it.
@@ -180,19 +198,31 @@ def create_google_spreadsheet(title, sus_name, share_domains, credentials):
     return spreadsheet_url
 
 
+def get_edge_direction(row):
+    """Determine edge direction based on relationship type."""
+    friend = re.findall(r'Friend', str(row))
+    like = re.findall(r'Like', str(row))
+    if friend:
+        return 1
+    elif like:
+        return 3
+    else:
+        return 2
+
+
 def pre_proc_links(new_link_sheet):
-    '''Fill content from first row of selected columns through last row and add a column.'''
+    """Fill content from first row of selected columns through last row and add a column."""
     cols = ['Name', 'Case_ID', 'Suspect_Case_ID']
     for c, col in enumerate(cols):
         new_link_sheet[cols[c]][new_link_sheet[cols[c]] == ''] = None
         new_link_sheet[cols[c]] = new_link_sheet[cols[c]].fillna(new_link_sheet[cols[c]][1])
-    new_link_sheet['Edge_Direction'] = ''
+    new_link_sheet['Edge_Direction'] = new_link_sheet['Relationship_Type'].apply(get_edge_direction)
     return new_link_sheet
 
 
-def get_sheets_for_network_db(suspects, credentials):
-    '''Collect and pre-process dictionary of recently updated relationship sheets so they are
-    ready to be added to network database.'''
+def get_sheets_for_network_db(suspects, auth):
+    """Collect and pre-process dictionary of recently updated relationship sheets so they are
+    ready to be added to network database."""
     new_link_sheets = suspects.active[['Relationships', 'Date_Relationships_Updated']]
     new_link_sheets['Date_Relationships_Updated'] = pd.to_datetime(
         new_link_sheets['Date_Relationships_Updated'])
@@ -201,12 +231,12 @@ def get_sheets_for_network_db(suspects, credentials):
     new_link_sheets = new_link_sheets[
         new_link_sheets.Date_Relationships_Updated >= yesterday]
     new_sheets = new_link_sheets.Relationships
-    gc = gspread.authorize(credentials)
+    new_sheets = new_sheets.reset_index(drop=True)
 
     d = {}
     if not new_link_sheets.empty:
         for i in range(len(new_sheets.index)):
-            d[i] = GSheet(gc.open_by_url(new_sheets[i]).sheet1)
+            d[i] = GSheet(auth.open_by_url(new_sheets[i]).sheet1)
     for i in d:
         d[i].df = pre_proc_links(d[i].df)
     return d

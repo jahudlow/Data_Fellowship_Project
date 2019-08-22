@@ -20,6 +20,8 @@ def teardown():
 
 
 def test_pre_proc_links():
+    """Use a test dataframe to make sure that the pre_proc function is correctly copying
+    the string in the first cell down to the last cell."""
     test_net = pd.read_csv('test_network_data.csv', encoding="ISO-8859-1", keep_default_na=False)
     test_net.index = np.arange(1, len(test_net) + 1)
     output = gs.pre_proc_links(test_net)
