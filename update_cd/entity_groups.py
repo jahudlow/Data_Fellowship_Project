@@ -3,9 +3,11 @@ This is a module for working with Entity Groups (Victims, Suspects, Police).
 '''
 from datetime import date
 import pandas as pd
+from copy import deepcopy
+
 
 def subset_addresses(db_add):
-    '''Selects and renames address fields from database which will be used.'''
+    """Selects and renames address fields from database which will be used."""
     addr = db_add.iloc[:, [1, 6, 7]]
     acols = ['address_1',
              'address2_id',
@@ -13,13 +15,15 @@ def subset_addresses(db_add):
     addr.columns = acols
     return addr
 
+
 class GetAttr:
-    '''This is a class which allows objects in it's subclasses to be indexed.'''
+    """This is a class which allows objects in it's subclasses to be indexed."""
     def __getitem__(cls, x):
         return getattr(cls, x)
 
+
 class Entity_Group(GetAttr):
-    '''This is a class for Victims, Suspects, and Police entity groups with corresponding sheets.'''
+    """This is a class for Victims, Suspects, and Police entity groups with corresponding sheets."""
     sheets = []
 
     def __init__(self, uid, new_cases, active_gsheet, closed_gsheet, name):
@@ -32,37 +36,39 @@ class Entity_Group(GetAttr):
 
     @classmethod
     def merge_addresses(cls, addr):
-        '''Adds relevant address data to new entity groups.'''
+        """Adds relevant address data to new entity groups."""
         addr = addr
         for sheet in cls.sheets:
             #sheet.new.infer_objects
-            sheet.new['address1_id'] = sheet.new['address1_id'].fillna(0).astype(int)
-            sheet.new['address2_id'] = sheet.new['address2_id'].fillna(0).astype(int)
-            sheet.new = pd.merge(sheet.new, addr, how='left', on='address2_id')
-            sheet.new['Address'] = sheet.new['address_2'].map(str) + ", " + sheet.new['address_1']
+            if 'address1_id' in sheet.new:
+                sheet.new['address1_id'] = sheet.new['address1_id'].fillna(0).astype(int)
+                sheet.new['address2_id'] = sheet.new['address2_id'].fillna(0).astype(int)
+                sheet.new = pd.merge(sheet.new, addr, how='left', on='address2_id')
+                sheet.new['Address'] = sheet.new['address_2'].map(str) + ", " + sheet.new['address_1']
 
     @classmethod
     def set_case_id(cls):
-        '''Creates a Case ID from the form ID stored in the database.'''
+        """Creates a Case ID from the form ID stored in the database."""
         for sheet in cls.sheets:
             sheet.new.loc[:, 'Case_ID'] = sheet.new['Case_ID'].str.replace('.', '')
             sheet.new['Case_ID'] = sheet.new['Case_ID'].str[:-1]
 
     @classmethod
     def combine_sheets(cls):
-        '''Adds new case data to data already in the corresponding Google Sheet.'''
+        """Adds new case data to data already in the corresponding Google Sheet."""
         for sheet in cls.sheets:
-            sheet.new = sheet.new.reindex(
+            sheet.newcopy = deepcopy(sheet.new)
+            sheet.newcopy = sheet.newcopy.reindex(
                 columns=sheet.new.columns.tolist() + list(sheet.gsheet.columns))
-            sheet.new = sheet.new.iloc[:, 5:len(sheet.new.columns)]
-            sheet.active = pd.concat([sheet.gsheet, sheet.new], sort=False)
+            sheet.newcopy = sheet.newcopy.iloc[:, 5:len(sheet.newcopy.columns)]
+            sheet.active = pd.concat([sheet.gsheet, sheet.newcopy], sort=False)
             sheet.active.drop_duplicates(subset=sheet.uid, inplace=True)
 
     @classmethod
     def move_closed(cls, arrests):
-        '''Moves closed cases to the closed sheet for each Entity Group instance.'''
+        """Moves closed cases to the closed sheet for each Entity Group instance."""
         for sheet in cls.sheets:
-            prev_closed = sheet.new[sheet.new[sheet.uid].isin(arrests.suspect_id)]
+            prev_closed = sheet.newcopy[sheet.newcopy[sheet.uid].isin(arrests.suspect_id)]
             prev_closed['Case_Status'] = "Closed: Already in Legal Cases Sheet"
             newly_closed = sheet.gsheet[sheet.gsheet['Date_Closed'].str.len() > 1]
             sheet.closed = pd.concat([sheet.closed, prev_closed, newly_closed], sort=False)
@@ -71,7 +77,7 @@ class Entity_Group(GetAttr):
 
     @classmethod
     def move_other_closed(cls, suspects, police, victims):
-        '''Moves cases closed in other Entity Group instances to closed sheets.'''
+        """Moves cases closed in other Entity Group instances to closed sheets."""
         closed_suspects = suspects.active[
             (suspects.active['Suspect_ID'].isin(police.closed['Suspect_ID'])) |
             (~suspects.active['Case_ID'].isin(victims.active['Case_ID']))]
@@ -97,7 +103,7 @@ class Entity_Group(GetAttr):
 
     @classmethod
     def save_csvs(cls):
-        ''''Write csvs for active/closed in each Entity Group and return list of new gsheets.'''
+        """'Write csvs for active/closed in each Entity Group and return list of new gsheets."""
         for sheet in cls.sheets:
             sheet.active.csv = 'backups/' + sheet.name + '.csv'
             sheet.closed.csv = 'backups/closed_' + sheet.name[:3] + '.csv'
@@ -108,8 +114,9 @@ class Entity_Group(GetAttr):
             ngs.to_csv(ngs.csv, index=False, header=None)
         return cls.new_gsheets
 
+
 def set_vic_id(new_victims):
-    '''Creates a unique ID for each victim from Case ID and subsets/renames columns.'''
+    """Creates a unique ID for each victim from Case ID and subsets/renames columns."""
     new_victims = new_victims[['cif_number',
                                'full_name',
                                'phone_contact',
@@ -132,8 +139,9 @@ def set_vic_id(new_victims):
     new_victims.columns = vcols
     return new_victims
 
+
 def set_sus_id(new_suspects, db_cif):
-    '''Creates a unique ID for each suspect from Case ID and subsets/renames columns.'''
+    """Creates a unique ID for each suspect from Case ID and subsets/renames columns."""
     new_suspects = new_suspects[['person_id',
                                  'full_name',
                                  'phone_contact',
@@ -152,6 +160,7 @@ def set_sus_id(new_suspects, db_cif):
         'phone_contact': 'Phone_Number(s)',
         'cif_number': 'Case_ID'}, inplace=True)
     return new_suspects
+
 
 def add_cdate_var(Sheets):
     """Adds a variable with the current date to the end of each dataframe in a list."""

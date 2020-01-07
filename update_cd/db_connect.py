@@ -7,7 +7,7 @@ import pandas as pd
 import psycopg2
 
 class DB_Conn(object):
-    '''This is a class for establishing a connection with the database.'''
+    """This is a class for establishing a connection with the database."""
     def __init__(self, db_filename, section='postgresql'):
         # create a parser
         parser = ConfigParser()
@@ -27,7 +27,7 @@ class DB_Conn(object):
         self.cur = conn.cursor()
 
     def ex_query(self, select_query):
-        '''Execute query and return dataframe.'''
+        """Execute query and return dataframe."""
         query = select_query
         cur = self.cur
         cur.execute(query)
@@ -36,7 +36,7 @@ class DB_Conn(object):
         return pd.DataFrame(rows, columns=colnames)
 
     def close_conn(self):
-        '''Close the cursor and the connection.'''
+        """Close the cursor and the connection."""
         self.cur.close()
         self.conn.close()
         print("PostgreSQL connection is closed")

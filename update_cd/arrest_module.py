@@ -6,7 +6,7 @@ This module extracts and processes the latest arrest related data for the Case D
 import pandas as pd
 
 def get_arrests(a_df):
-    '''Extracts relevant arrest data and reformats them.'''
+    """Extracts relevant arrest data and reformats them."""
     arrests = pd.DataFrame(a_df)
     arrests.infer_objects()
     arrests['Outcome (Arrest)'] = arrests['Outcome (Arrest)'].fillna(0).astype(int)

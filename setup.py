@@ -11,16 +11,15 @@ setuptools.setup(
     author_email="jon@lovejustice.ngo",
     description="A package for updating and prioritizing human trafficking case data.",
     long_description=readme(),
-    key_words='Human trafficking cases investigations Searchlight'
+    key_words='Human trafficking cases investigations Searchlight',
     url="https://github.com/jahudlow/Data_Fellowship_Project",
-    packages = find_packages(exclude=['contrib', 'docs', 'tests*']),
+    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     entry_points={
                                             'console_scripts': [
                                                 'update_cd = update_cd.__main__:main'
                                             ]
                                         },
-)
-    python_requires='>=3'
+    python_requires='>=3',
     classifiers=[
         "Development Status :: 3 - Alpha",
         'Intended Audience :: Love Justice - internal',
